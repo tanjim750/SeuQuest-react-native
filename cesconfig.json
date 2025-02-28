@@ -1,0 +1,28 @@
+{
+  "cesVersion": "2.12.2",
+  "projectName": "SEUQuest",
+  "packages": [
+    {
+      "name": "nativewind",
+      "type": "styling"
+    }
+  ],
+  "flags": {
+    "noGit": false,
+    "noInstall": false,
+    "overwrite": false,
+    "importAlias": true,
+    "packageManager": "npm",
+    "eas": false
+  },
+  "packageManager": {
+    "type": "npm",
+    "version": "9.2.0"
+  },
+  "os": {
+    "type": "Linux",
+    "platform": "linux",
+    "arch": "x64",
+    "kernelVersion": "6.8.11-amd64"
+  }
+}
