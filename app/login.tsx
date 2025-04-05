@@ -13,12 +13,6 @@ const LoginScreen = () => {
   const [checkbox, setCheckbox] = useState(false);
   const [signInBtn, setSignInBtn] = useState(false);
   const [IspasswordShow, setIsPasswordShow] = useState(false);
-  const [alertMessage, setWarning] = useState({
-                                        success: false,
-                                        message: "",
-                                        color: "",
-                                        visible: false,
-                                    });
 
   const navigation = useNavigation();
 
@@ -29,18 +23,6 @@ const LoginScreen = () => {
         setSignInBtn(false);
     }
   },[email, password]);
-
-  useEffect(() =>{
-    const timer = setTimeout(() => setWarning(
-        {
-            success: false,
-            message: "",
-            color: "",
-            visible: false,
-        }
-    ),7000)
-    return () => clearTimeout(timer);
-  },[alertMessage])
 
   const signIn = () => {
     const data = {
@@ -111,8 +93,6 @@ const LoginScreen = () => {
   return (
     <>
         <View className="flex-1 bg-[#f1f5f9] justify-center items-center p-6">
-            <AlertBox message={alertMessage.message} visible={alertMessage.visible} color={alertMessage.color} success={alertMessage.success}/>
-
             <View className="bg-white ml-5 mr-5 w-[100%] pt-14 pb-10 rounded-xl p-5">
                 <View className="items-center">
                     <Image source={require("assets/logo.png")} className="w-32 h-32" />

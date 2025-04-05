@@ -4,6 +4,7 @@ import { Alert } from "react-native";
 import Toast from "react-native-toast-message";
 
 export const DownloadImages = async (imageUrls: string[]) => {
+  // console.log(`Downloading fn`);
   // Request permission to save images to gallery
   const { status } = await MediaLibrary.requestPermissionsAsync();
   if (status !== "granted") {
@@ -37,11 +38,11 @@ export const DownloadImages = async (imageUrls: string[]) => {
       text1: "Download Complete",
       text2: "All images have been saved to your gallery.",
     });
-  } catch (error) {
+  } catch (error:any) {
     Toast.show({
       type: "error",
       text1: "Download Failed",
-      text2: "An error occurred while downloading.",
+      text2: error.message.toString(), // "An error occurred while downloading."
     });
   }
 };

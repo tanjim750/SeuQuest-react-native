@@ -1,9 +1,12 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
 import { FontAwesome } from "@expo/vector-icons";
 import { DownloadImages } from 'components/downloadImage';
+import { ButtonBgLimeIcon } from 'components/buttons/buttons';
 
 export default function QuestionDetails({className,facultyName,totalImgs,onLayout,onPressReviewBtn,images}:any) {
+  const [btnPressed, setBtnPressed] = useState(false);
+
   return (
     <View className={`p-4 rounded-2xl shadow-md bg-white ${className}`} onLayout={onLayout}>
 
@@ -17,12 +20,7 @@ export default function QuestionDetails({className,facultyName,totalImgs,onLayou
             <Text className="text-sm font-bold text-gray-700">{totalImgs} Images Uploaded</Text>
 
             <View className='flex-row gap-2 mt-5'>
-                <TouchableOpacity className={`flex-row items-center gap-2 py-1 px-2 bg-lime-400 rounded-md`} 
-                    onPress={()=> DownloadImages(images)}
-                    >
-                    <FontAwesome name='cloud-download' size={15}/>
-                    <Text className='text-md text-gray-500 font-semibold'>Download</Text>
-                </TouchableOpacity>
+              <ButtonBgLimeIcon title="Download" iconName="cloud-download" iconSize={18} onPress={() => DownloadImages(images)} />
                 
             </View>
         </View>
@@ -55,4 +53,7 @@ export default function QuestionDetails({className,facultyName,totalImgs,onLayou
   )
 }
 
-const styles = StyleSheet.create({})
+const styles = {
+  btn: "flex-row items-center gap-2 bg-lime-400 py-1 px-2 rounded-md",
+  onPressBtn: "flex-row items-center gap-2 bg-lime-400 py-1 px-2 rounded-md opacity-50"
+}

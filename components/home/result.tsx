@@ -31,8 +31,8 @@ const Result = () => {
         <Text className="text-lg font-semibold text-black">
             Your Results
         </Text>
-        <Text className="text-xl font-semibold text-gray-400">CGPA 
-            <Text className={`text-xl font-bold text-[#8a86d8]`}> 3.69</Text>
+        <Text className="text-sm font-semibold text-gray-400">CGPA 
+            <Text className={`text-sm font-bold text-[#8a86d8]`}> 3.69</Text>
         </Text>
       </View>
  

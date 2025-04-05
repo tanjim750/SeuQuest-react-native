@@ -33,8 +33,8 @@ const RecomendedCourse = () => {
         <Text className="text-lg font-semibold text-black">
             Recomended Courses
         </Text>
-        <Text className="text-lg font-semibold text-gray-400 ">Minimum 
-            <Text className={`text-lg font-bold text-[#8a86d8]`}> 6 Credit</Text>
+        <Text className="text-sm font-semibold text-gray-400 ">Minimum 
+            <Text className={`text-sm font-bold text-[#8a86d8]`}> 6 Credit</Text>
         </Text>
       </View>
  

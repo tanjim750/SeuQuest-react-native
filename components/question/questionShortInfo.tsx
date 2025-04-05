@@ -3,6 +3,7 @@ import React from 'react'
 import { Color } from 'components/color'
 import { FontAwesome } from "@expo/vector-icons";
 import FastImage from 'react-native-fast-image';
+import { ButtonBgGray, ButtonBgLime } from 'components/buttons/buttons';
 
 export default function QuestionShortInfo({className,facultyName,totalQns,onLayout,onPressReviewBtn, onPressAddBtn}:any) {
   return (
@@ -18,12 +19,8 @@ export default function QuestionShortInfo({className,facultyName,totalQns,onLayo
             <Text className="text-sm font-bold text-gray-700">{totalQns} Quesions</Text>
 
             <View className='flex-row gap-2 mt-4'>
-                <TouchableOpacity className={`py-1 px-2 bg-lime-400 rounded-md`} onPress={onPressReviewBtn}>
-                    <Text className='text-md text-gray-500 font-semibold'>View Questions</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className={`py-1 px-2 bg-gray-300 rounded-md`} onPress={onPressAddBtn}>
-                    <Text className='text-md text-gray-500 font-semibold'>Upload</Text>
-                </TouchableOpacity>
+                <ButtonBgLime title="View Question" onPress={onPressReviewBtn} />
+                <ButtonBgGray title="Upload" onPress={onPressAddBtn} />
             </View>
         </View>
         <View className="flex-col justify-start">
