@@ -16,7 +16,7 @@ let headers = {
         "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
     }
 
-export const ApiRequest = async (url:any, method:any = "GET", authentication=false, data:any = null, headers:any = {}) => {
+export const UmsApiRequest = async (url:any, method:any = "GET", token:string|null=null, data:any = null, headers:any = {}) => {
     try {
         // Default headers
         const defaultHeaders: any = {
@@ -26,8 +26,8 @@ export const ApiRequest = async (url:any, method:any = "GET", authentication=fal
             ...headers, 
         };
 
-        if (authentication){
-            defaultHeaders.Authorization = `Bearer ${localStorage.getItem("authToken")}`
+        if (token){
+            defaultHeaders.Authorization = `Bearer ${token}`
         }
 
         const options:any = {
@@ -54,3 +54,10 @@ export const ApiRequest = async (url:any, method:any = "GET", authentication=fal
         throw error;
     }
 };
+
+
+/// attendence https://ums-api-service.seu.edu.bd/academic/v/2.0.0/class-attendance/student-record
+/// payments https://ums-api-service.seu.edu.bd/accounts/v/2.0.0/student-ledger/get
+/// class scadule || result https://ums-api-service.seu.edu.bd/academic/v/2.0.0/course-registration/dashboard-data
+
+/// https://ums-api-service.seu.edu.bd/auth/v/2.0.0/sign-out

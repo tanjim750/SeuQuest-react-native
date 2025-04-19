@@ -3,11 +3,14 @@ import { View, Text, TextInput, TouchableOpacity, Image, Linking } from "react-n
 import { FontAwesome } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import { useNavigation } from "@react-navigation/native";
-import { ApiRequest } from "components/apiRequest";
+import { UmsApiRequest } from "components/apiRequest";
 import AlertBox from "components/alertBox";
 import Toast from "react-native-toast-message";
+import { useAuth } from "components/context/AuthContext";
+import { Redirect } from "expo-router";
 
 const LoginScreen = () => {
+  const { login, authenticated } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkbox, setCheckbox] = useState(false);
@@ -24,11 +27,8 @@ const LoginScreen = () => {
     }
   },[email, password]);
 
-  const signIn = () => {
-    const data = {
-        username: email,
-        password: password
-    }
+  const signIn = async () => {
+    
 
     if(email.toLocaleLowerCase() == "default" && password.toLocaleLowerCase() == "default"){
         navigation.navigate("(dash)");
@@ -37,50 +37,13 @@ const LoginScreen = () => {
     
     if(email.length>4 && password.length>8){
         setSignInBtn(false);
-        ApiRequest("/auth/v/2.0.0/sign-in","POST",false,data)
-        .then(response => {
-            console.log(response);
-            if(response.status != "200"){
-                // setWarning({
-                //     success: false,
-                //     message: response.data.message,
-                //     color: "red",
-                //     visible: true,
-                // });
-                Toast.show({
-                    type: 'error',
-                    text1:"Warning",
-                    text2: response.data.message,
-                    text1Style:{color: "red"}
-                })
-            }else {
-                // setWarning({
-                //     success: true,
-                //     message: "Successfully logged in.",
-                //     color: "green",
-                //     visible: true,
-                // });
-                Toast.show({
-                    type: 'success',
-                    text1:"Success",
-                    text2: response.data.message,
-                    text1Style:{color: "green"}
-                })
-                navigation.navigate("(dash)");
-            }
-            setSignInBtn(true)
-        })
-        .catch(error => {
-            console.log(error)
-            setSignInBtn(true)
-        })
+        // if(await login(email,password)){
+        //     navigation.navigate("(dash)");
+        // }
+        login(email,password)
+        
     }else{
-        // setWarning({
-        //     success: false,
-        //     message: "Please enter correct username and password",
-        //     color: "red",
-        //     visible: true,
-        // });
+        
         Toast.show({
             type: 'error',
             text1:"Warning",
@@ -89,6 +52,8 @@ const LoginScreen = () => {
         })
     }
   }
+
+  if(authenticated) return <Redirect href={"(dash)"}/>
 
   return (
     <>

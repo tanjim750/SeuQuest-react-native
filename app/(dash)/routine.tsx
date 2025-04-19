@@ -12,6 +12,7 @@ import { courseList } from 'components/routine/course/courseList'
 import { TextInput } from 'react-native-gesture-handler'
 import SingleCourse from 'components/routine/course/singleCourse'
 import CourseChoiceBottomSheet from 'components/routine/course/courseChoiceBottomSheet'
+import FacultyChoiceBottomSheet from 'components/routine/faculty/facultyChoiceBottomSheet'
 
 export default function Routin() {
   const sheetRef = useRef<BottomSheet>(null);
@@ -22,6 +23,11 @@ export default function Routin() {
   const [selectedCourses, setSelectedCourse] = useState<any>([]);
   const [filteredCourseList, setFilteredCourseList] = useState<any>(courseList)
   const [courseSearchText, setCourseSearchText] = useState("");
+  const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
+  const [selectedSection, setSelectedSection] = useState<any>(null);
+  const [startTime, setStartTime] = useState("")
+  const [endTime, setEndTime] = useState("")
+  const [seletedDay, setSelectedDay] = useState<any>(null)
 
   // useEffect(() =>{
   //   console.log("courseList",selectedCourses);
@@ -36,9 +42,9 @@ export default function Routin() {
   }, []);
 
   const addCourse = (course:string) => {
-    const newList = [...selectedCourses, course]
-    setSelectedCourse(newList)
-    
+    setSelectedCourse([...selectedCourses, course])
+    setSelectedFaculty({...selectedFaculty,[course]:[]})
+    setSelectedSection({...selectedSection,[course]:[]})
   };
 
   const removeCourse = (course:string) => {
@@ -50,6 +56,18 @@ export default function Routin() {
       console.log(c);
     })
     setSelectedCourse(revomedCourse)
+
+    // remove faculty
+    const removedFaculty = Object.fromEntries(
+      Object.entries(selectedFaculty).filter(([key, _]) => key !== course)
+    );
+    setSelectedFaculty(removedFaculty)
+
+    // remove section 
+    const removedSection = Object.fromEntries(
+      Object.entries(selectedSection).filter(([key, _]) => key !== course)
+    );
+    setSelectedSection(removedSection)
   };
 
   useEffect(() => {
@@ -75,10 +93,10 @@ export default function Routin() {
         <Header/>
 
         <CoursesChoise courses={selectedCourses} setDialogContent={setDialogContent} />
-        <FacultyChoise/>
-        <SectionChoise/>
-        <DayChoise/>
-        <TimeSelection/>
+        <FacultyChoise faculty={selectedFaculty} setDialogContent={setDialogContent}/>
+        <SectionChoise sections={selectedSection}/>
+        <DayChoise day={seletedDay} setDay={setSelectedDay}/>
+        <TimeSelection start={startTime} setStartTime={setStartTime} end={endTime} setEndTime={setEndTime}/>
 
         { dialogContent && 
             <BottomSheet
@@ -100,6 +118,10 @@ export default function Routin() {
                   addCourse = {addCourse}
                   removeCourse= {removeCourse}
                   selectedCourses = {selectedCourses}
+                />}
+
+                {dialogContent == "facultyChoice" && <FacultyChoiceBottomSheet
+                
                 />}
 
               </View>

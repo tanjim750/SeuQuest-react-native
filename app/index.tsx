@@ -1,12 +1,26 @@
 import { View, Text, Button } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { Link, Redirect, useNavigation, useRouter } from "expo-router";
 import Header from "components/header";
 import LoginScreen from "./login";
+import { AuthContext, useAuth } from "components/context/AuthContext";
+import { useContext, useEffect } from "react";
 
 export default function HomeScreen() {
-  const router = useRouter();
+  const { authenticated } = useAuth();
+  const navigation = useNavigation();
 
-  return (
-    <LoginScreen/>
-  );
+  useEffect(() => {
+    if(authenticated){
+      navigation.navigate("(dash)");
+    }else{
+      navigation.navigate("login");
+    }
+  }, [authenticated]);
+
+  if (!authenticated) {
+    return <LoginScreen />;
+  }
+
+  return <Redirect href="(dash)" />;
+  
 }
