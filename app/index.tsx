@@ -4,19 +4,26 @@ import Header from "components/header";
 import LoginScreen from "./login";
 import { AuthContext, useAuth } from "components/context/AuthContext";
 import { useContext, useEffect } from "react";
+import Loader from "components/loading/Loader";
 
 export default function HomeScreen() {
-  const { authenticated } = useAuth();
+  const { authenticated, isLoading } = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
-    if(authenticated){
+    // console.log("index loading.....",isLoading)
+    if(isLoading){
+      navigation.navigate("index");
+    }
+    else if(authenticated){
       navigation.navigate("(dash)");
     }else{
       navigation.navigate("login");
     }
   }, [authenticated]);
 
+  
+  if(isLoading) return <Loader/>
   if (!authenticated) {
     return <LoginScreen />;
   }

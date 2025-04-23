@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react'
 import { CustomButton } from 'components/buttons/buttons'
 import Checkbox from 'expo-checkbox';
 
-export default function SingleCourse({courseCode, courseName, courseCredit, selected, addCourse, removeCourse,courses}:any) {
+export default function SectionCheckbox({courseCode, section, facultyName,classDays,classTime, selected, addSection, removeSection}:any) {
   const [checkbox, setCheckbox] = useState(selected);
 
   const handleBtnPress = () => {
     if(!checkbox){
-        addCourse();
+        addSection(courseCode,section);
     }else{
-        removeCourse(courseCode);
+        removeSection(courseCode,section);
     }
 
     setCheckbox(!checkbox);
@@ -21,10 +21,10 @@ export default function SingleCourse({courseCode, courseName, courseCredit, sele
         <View className='flex-row justify-between'>
             <View className='max-w-[93%]'>
                 <Text className="text-lg font-semibold text-black ">
-                        {courseCode}
+                        {facultyName}
                 </Text>
-                <Text className='font-medium text-gray-500'>{courseName} </Text>
-                <Text className='font-light text-black'>Credit: {courseCredit} </Text>
+                <Text className='font-medium text-gray-400'>{courseCode}.{section} </Text>
+                <Text className='font-medium text-gray-400'>{classDays.join("/")} @{classTime.join(" - ")}</Text>
             </View>
 
             <View>

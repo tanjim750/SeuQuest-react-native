@@ -20,9 +20,9 @@ export default function CoursesChoise({courses,setDialogContent}:any) {
     <View className={`p-4 rounded-2xl shadow-md bg-white`}>
       <Text className='text-md font-medium text-gray-700 mb-5'>Course Choice</Text>
       <View className='flex-wrap flex-row gap-3'>
-            {courses.map((course:any,idx:any) => 
-              <Text className='px-2 py-1 text-gray-600 font-medium bg-gray-200 rounded-l-sm' key={idx}>{course}</Text>
-            )};
+            {courses && Object.values(courses).map((course:any,idx:number) => 
+              <Text className='px-2 py-1 text-gray-600 font-medium bg-gray-200 rounded-l-sm' key={idx}>{course.courseCode}</Text>
+            )}
             
             <TouchableOpacity className='flex-row' onPress={handleBtnPress}>
                 <Text className='px-2 py-1 text-gray-600 font-medium bg-gray-200 rounded-l-sm'>Add</Text>

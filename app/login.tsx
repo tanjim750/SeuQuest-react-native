@@ -30,10 +30,10 @@ const LoginScreen = () => {
   const signIn = async () => {
     
 
-    if(email.toLocaleLowerCase() == "default" && password.toLocaleLowerCase() == "default"){
-        navigation.navigate("(dash)");
-        return;
-    }
+    // if(email.toLocaleLowerCase() == "default" && password.toLocaleLowerCase() == "default"){
+    //     navigation.navigate("(dash)");
+    //     return;
+    // }
     
     if(email.length>4 && password.length>8){
         setSignInBtn(false);

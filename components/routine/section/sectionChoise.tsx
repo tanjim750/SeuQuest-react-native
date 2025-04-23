@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { FontAwesome } from "@expo/vector-icons";
 
-export default function SectionChoise({sections}:any) {
+export default function SectionChoise({sections, setDialogContent, setSection}:any) {
   
   return (
     <View className={`p-4 rounded-2xl shadow-md bg-white`}>
@@ -19,7 +19,11 @@ export default function SectionChoise({sections}:any) {
                     <Text className='px-2 py-1 text-gray-500 font-medium bg-gray-200 rounded-l-sm'>
                         {key}{` [${value.length > 0? value.join(","):"Any"}]`}
                     </Text>
-                    <TouchableOpacity className='py-1 px-2 flex justify-center items-center bg-green-200 rounded-r-sm'>
+                    <TouchableOpacity className='py-1 px-2 flex justify-center items-center bg-green-200 rounded-r-sm' 
+                      onPress={() => {
+                        setDialogContent("sectionChoice")
+                        setSection(key)
+                      }}>
                         <Text className=' text-gray-500 font-medium'>Choose</Text>
                     </TouchableOpacity>
                 </View>

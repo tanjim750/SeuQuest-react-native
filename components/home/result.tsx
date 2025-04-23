@@ -59,8 +59,8 @@ const Result = () => {
       {/* <ScrollView horizontal> */}
       <View className='flex flex-wrap flex-row justify-around gap-10 mt-5 mr-5'>
         
-      {gradeList?.map((grade:any) => 
-        <ResultDetails gpa={grade.cgpa} semester={grade.semester.label} credits="14"/>
+      {gradeList?.map((grade:any,idx:number) => 
+        <ResultDetails key={idx} gpa={grade.cgpa} semester={grade.semester.label} credits="14"/>
       )}
       </View>
 

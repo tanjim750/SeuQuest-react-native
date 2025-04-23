@@ -1,3 +1,5 @@
+import NetInfo from "@react-native-community/netinfo";
+
 export const baseUrl = "https://ums-api-service.seu.edu.bd"
 
 let headers = {
@@ -50,10 +52,24 @@ export const UmsApiRequest = async (url:any, method:any = "GET", token:string|nu
         
         return result;
     } catch (error: any) {
-        console.error("API Request Error:", error.message);
+        // Handle internet connection error
+        // if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        //     throw new Error("Network Error: Please check your internet connection.");
+        // }
+        // console.error("API Request Error:", error.message);
         throw error;
     }
 };
+
+export const checkInternetConnection = async (): Promise<boolean|null> => {
+    try {
+      const state = await NetInfo.fetch();
+      return state.isConnected && state.isInternetReachable !== false;
+    } catch (error) {
+      console.error("Internet check failed:", error);
+      return false;
+    }
+  };
 
 
 /// attendence https://ums-api-service.seu.edu.bd/academic/v/2.0.0/class-attendance/student-record

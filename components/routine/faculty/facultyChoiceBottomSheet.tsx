@@ -1,24 +1,28 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Checkbox from 'expo-checkbox'
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import FacultyCheckbox from './facultyCheckbox'
 
-export default function FacultyChoiceBottomSheet({courses,faculty, addFaculty, removeFaculty}:any) {
+export default function FacultyChoiceBottomSheet({courses,selectedFaculty, addFaculty, removeFaculty}:any) {
+  
   return (
     <BottomSheetScrollView className='bg-[#f1f5f9]'>
-          <FacultyCheckbox 
-            courseCode={"CSE161"}
-            facultyName={"Nizam Uddin"} facultyInital={"NU"}  selected={true} addFaculty={() => {}} removeFaculty={() => {}}
-          />
-          <FacultyCheckbox 
-            courseCode={"CSE161"}
-            facultyName={"Nizam Uddin"} facultyInital={"NU"}  selected={true} addFaculty={() => {}} removeFaculty={() => {}}
-          />
-          <FacultyCheckbox 
-            courseCode={"CSE161"}
-            facultyName={"Nizam Uddin"} facultyInital={"NU"}  selected={false} addFaculty={() => {}} removeFaculty={() => {}}
-          />
+      
+      {courses && [...new Map(
+        courses[0].sections.map((sec: any) => [sec.facultyName, sec])
+      ).values()].map((sec: any) => (
+        <FacultyCheckbox 
+          key={sec.facultyInitial}
+          courseCode={courses[0].courseCode}
+          facultyName={sec.facultyName}
+          facultyInital={sec.facultyInitial}
+          selected={selectedFaculty.includes(sec.facultyInitial)}
+          addFaculty={addFaculty}
+          removeFaculty={removeFaculty}
+        />
+      ))}
+          
       </BottomSheetScrollView>
   )
 }

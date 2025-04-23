@@ -34,6 +34,8 @@ const ClassDetails = ({courseCode,section, totalClass, attend, courseName, start
 
 const collectClassSchedules = (courseList:[],attendanceList:[]) => {
   const classSchedules:any = []
+  if(!courseList || courseList.length == 0) return null
+  
   courseList.map((course:any) =>{
     const data:any = {
       dayOfWeek: []

@@ -1,7 +1,7 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UmsApiRequest } from 'components/apiRequest';
+import { checkInternetConnection, UmsApiRequest } from 'components/apiRequest';
 import Toast from 'react-native-toast-message';
 
 const signIn = (username:string,password:string) => {
@@ -35,7 +35,11 @@ const signIn = (username:string,password:string) => {
             }
         })
         .catch(error => {
-            return Promise.reject({status:400})
+          const message =
+          error?.message?.includes("Network Error") || error?.message === "Failed to fetch"
+              ? "No internet connection. Please check your connection."
+              : "Something went wrong. Please try again.";
+          return Promise.reject({ status: 400, message });
         })
 }
 
@@ -94,11 +98,99 @@ const collectPaymentData = async (token:any) => {
             // console.log()
             return paymentData
         }else{
-          return {}
+          return null
         }
     })
-    .catch(e => {})
+    .catch(e => null)
 
+}
+
+const collectAdvisedCourses = async (token:any) => {
+
+  return UmsApiRequest("/academic/v/2.0.0/course-advising/advising-table","GET",token)
+  .then(async (response:any) => {
+      // console.log("advised course",response.data.data.offeredSectionList)
+      
+      if(response.status == "200"){
+          // setAdvisedCourses(response.data.data)
+          // await AsyncStorage.setItem("advisedCourses",JSON.stringify(response.data.data))
+          const offeredSectionList = response.data.data.offeredSectionList
+          const advisedSections:any = {}
+
+          if (offeredSectionList){
+            for (const sec of offeredSectionList) {
+              try{
+
+                const code = sec.course.code;
+                const title = sec.course.title
+                const credits = sec.credits;
+                const section = sec.section;
+                const isLab = credits === 1;
+                let facultyName = "";
+                let facultyInitial = "";
+                let facultyDepartment = "";
+                
+                if(sec.facultyList && sec.facultyList.length > 0){
+                  facultyName = sec.facultyList[0].name.fullName;
+                  facultyInitial = sec.facultyList[0].employmentInformation.facultyInitials;
+                  facultyDepartment = sec.facultyList[0].employmentInformation?.primaryDesignation;
+                }
+              
+                let classStart = "";
+                let classEnd = "";
+                const classDays = [];
+
+                if(!sec.sectionScheduleList) continue;
+              
+                for (const schedule of sec.sectionScheduleList) {
+                  classStart = schedule.timeSlot.startTime.slice(0, 5);
+                  classEnd = schedule.timeSlot.endTime.slice(0, 5);
+                  classDays.push(schedule.timeSlot.dayOfWeek.slice(0, 3).toLowerCase());
+                }
+              
+                const sectionDetails = {
+                  section: section,
+                  facultyName: facultyName,
+                  facultyInitial: facultyInitial,
+                  facultyDepartment: facultyDepartment,
+                  classStart: classStart,
+                  classEnd: classEnd,
+                  classDays: classDays
+                };
+              
+                if (!advisedSections[code]) {
+                  advisedSections[code] = {
+                    courseCode: code,
+                    courseTitle:title,
+                    credits: credits,
+                    isLab: isLab,
+                    sections: [sectionDetails]
+                  };
+                } else {
+                  advisedSections[code].sections.push(sectionDetails);
+                }
+              }catch(error){
+                // console.log("Stack trace:",sec);
+              }
+            }
+            
+          }
+          // console.log("advised course.....",Object.keys(advisedSections).length)
+          
+          if (Object.keys(advisedSections).length === 0) {
+            return null;
+          } else {
+            return Object.values(advisedSections);
+          }
+        
+      }else{
+        return null;
+      }
+  })
+  .catch((error) => {
+    console.log(error)
+    return null
+  })
 }
 
 
@@ -107,6 +199,8 @@ type AuthContextType = {
   paymentData: any;
   studentInfo:any;
   classRecord:any;
+  isLoading: boolean;
+  advisedCourses: []|null;
   login: (username:string,password:string) => Promise<any>;
   logout: () => void;
 };
@@ -119,15 +213,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [studentInfo, setStudentInfo] = useState<null|{}>(null)
   const [paymentData, setPaymentData] = useState<null|{}>(null)
   const [classRecord,setClassRecord] = useState<null|{}>(null)
-
+  const [advisedCourses, setAdvisedCourses] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  
 
   useEffect(() => {
     const loadToken = async () => {
       const token = await AsyncStorage.getItem('authToken');
       if (token) setUserToken(token);
+      if (!token) setIsLoading(false);
+    
     };
     loadToken();
   }, []);
+
 
   const collectclassRecord = (token:any,info:any) => {
     const semesterNumber = info.currentSemesterNumber;
@@ -142,10 +241,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = {offerSectionIdList,semesterNumber}
 
     UmsApiRequest("/academic/v/2.0.0/class-attendance/student-record","POST",token,data)
-    .then((response:any) => {
+    .then(async  (response:any) => {
         // console.log("student-record",response.data.data)
         if(response.status == "200"){
             setClassRecord(response.data.data)
+            await AsyncStorage.setItem("classRecord",JSON.stringify(response.data.data))
             return true
         }
     })
@@ -153,17 +253,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   useEffect(() => {
+    // console.log("token",userToken)
     if(userToken){
+      checkInternetConnection().then(async (isConnected) => {
+        // console.log("isConnected   ---",isConnected)
+        if (isConnected) {
+          authenticateUser(userToken);
+        
+        } else {
+          const savedStudentInfo = await AsyncStorage.getItem('studentInfo');
+          const savedPaymentData = await AsyncStorage.getItem('paymentData')
+          const savedClassRecord = await AsyncStorage.getItem('classRecord')
 
-      authenticateUser(userToken);
+          if (savedStudentInfo) setStudentInfo(JSON.parse(savedStudentInfo));
+          if(savedPaymentData) setPaymentData(JSON.parse(savedPaymentData));
+          if(savedClassRecord) setClassRecord(JSON.parse(savedClassRecord));
+
+          if(savedStudentInfo && (savedClassRecord || savedPaymentData)){
+            // return true
+            setAuthenticated(true)
+          }
+
+          setIsLoading(false)
+        }
+
+      });
+    }
+  },[userToken])
+
+
+  useEffect(()=>{
+
+    if(authenticated){
       const fetchPaymentData = async () => {
         const payment = await collectPaymentData(userToken);
+        let courses:any = await AsyncStorage.getItem("advisedCourses");
+        
         setPaymentData(payment);
+        await AsyncStorage.setItem("paymentData",JSON.stringify(payment))
+
+        if(courses){
+          setAdvisedCourses(JSON.parse(courses));
+        }else{
+          courses = await collectAdvisedCourses(userToken);
+          setAdvisedCourses(courses)
+          await AsyncStorage.setItem("advisedCourses", JSON.stringify(courses))
+        }
+
       };
   
       fetchPaymentData();
     }
-  },[userToken])
+  },[authenticated])
   
   useEffect(() => {
     if(studentInfo){
@@ -177,10 +318,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const authenticateUser = async (token:any) => {
     UmsApiRequest("/academic/v/2.0.0/course-registration/dashboard-data","GET",token)
-    .then((response:any) => {
+    .then(async (response:any) => {
         // console.log("dashboard",response)
+        setIsLoading(false) // set loading false
+
         if(response.status == "200"){
             setStudentInfo(response.data.data)
+            await AsyncStorage.setItem("studentInfo",JSON.stringify(response.data.data))
             setAuthenticated(true)
             return true
         }else{
@@ -188,29 +332,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return false
         }
     })
-    .catch(e => false)
+    .catch(async (error) => {
+      return false
+    })
   }  
   
 
   const login = async (username:string,password:string) => {
+    checkInternetConnection().then(async (isConnected) => {
+      if (isConnected) {
+        const response = await signIn(username,password)
+        // console.log(response.data.token)
+        if(response.code == "200"){
+            await AsyncStorage.setItem('authToken', response.data.token);
+            setUserToken(response.data.token)
+        }
+        return response
+      
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: "Network error",
+          text2: "Check Your internet connection",
+          text1Style: { color: "red" }
+        });
+        return false
+      }
+
+    });
     
-    const response = await signIn(username,password)
-    // console.log(response.data.token)
-    if(response.code == "200"){
-        await AsyncStorage.setItem('authToken', response.data.token);
-        setUserToken(response.data.token)
-    }
-    return response
+    
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('authToken');
-    setUserToken(null);
-    setAuthenticated(false)
+    checkInternetConnection().then(async (isConnected) => {
+      if (isConnected) {
+        await AsyncStorage.removeItem('authToken');
+        await AsyncStorage.removeItem('studentInfo');
+        await AsyncStorage.removeItem('paymentData');
+        await AsyncStorage.removeItem('classRecord');
+        await AsyncStorage.removeItem("advisedCourses")
+
+        setUserToken(null);
+        setAuthenticated(false)
+        setIsLoading(false)
+      
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: "Network error",
+          text2: "Check Your internet connection",
+          text1Style: { color: "red" }
+        });
+        return false
+      }
+
+    });
+    
   };
 
   return (
-    <AuthContext.Provider value={{ authenticated,studentInfo,classRecord,paymentData, login, logout }}>
+    <AuthContext.Provider value={{ authenticated,studentInfo,classRecord,paymentData, isLoading,advisedCourses, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
